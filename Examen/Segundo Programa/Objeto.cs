@@ -12,6 +12,7 @@ namespace Clasificador
         //las listas son dinamicas
         List<double> Entrenamiento1;
         List<double> Entrenamiento2;
+        List<double> Entrenamiento3;
 
         //por default son estaticas
         double _media;
@@ -31,6 +32,15 @@ namespace Clasificador
         double Psimple2;
         double _min2;
         double _max2;
+
+        double _media3;
+        double _std3;
+        double _var3;
+        double[] _x3;
+        double[] _y3;
+        double Psimple3;
+        double _min3;
+        double _max3;
 
         string _Nombre;
         private double[] a;
@@ -54,16 +64,14 @@ namespace Clasificador
         /// Crea un nuevo objeto con calculo y valores de entrada
         /// </summary>
         /// <param name="muestras">los datos de las muestras</param>
-        public Objeto(string nombre, double[] muestras1, double[] muestras2) //cuando si se pasen muestras
+        public Objeto(string nombre, double[] muestras1, double[] muestras2, double[] muestras3) //cuando si se pasen muestras
         {
             Entrenamiento1 = new List<double>(muestras1);
             Entrenamiento2 = new List<double>(muestras2);
+            Entrenamiento3 = new List<double>(muestras3);
             this._Nombre = nombre;
         }
-
-
-
-
+        
         #endregion
 
         #region Accesos (get , set)
@@ -138,6 +146,39 @@ namespace Clasificador
         {
             get { return _max2; }
         }
+        public double Mean3
+        {
+            get { return _media3; } //la media solo es de lectura, el usuario no la debe modificar
+        }
+        /// <summary>
+        /// Devuelve la varianza del objeto
+        /// </summary>
+        public double Var3
+        {
+            get { return _var3; } //la varianza solo es de lectura, el usuario no la debe modificar
+        }
+        /// <summary>
+        /// Devuelve la desviacion del objeto
+        /// </summary>
+        public double Std3
+        {
+            get { return _std3; } //la desviacion solo es de lectura, el usuario no la debe modificar
+        }
+        /// <summary>
+        /// Regresa el valr minimo
+        /// </summary>
+        public double Min3
+        {
+            get { return _min3; }
+        }
+        /// <summary>
+        /// Regresa el valor maximo
+        /// </summary>
+        public double Max3
+        {
+            get { return _max3; }
+        }
+
         /*/// <summary>
         /// Devuelve el valor de entrenamiento
         /// </summary>
@@ -180,6 +221,17 @@ namespace Clasificador
         {
             get { return _y2; }
         }
+        public double[] fx3
+        {
+            get { return _x3; }
+        }
+        /// <summary>
+        /// retorna el arreglo de y de una distribucion
+        /// </summary>
+        public double[] fy3
+        {
+            get { return _y3; }
+        }
         #endregion
 
         #region Metodos Publicos
@@ -201,6 +253,16 @@ namespace Clasificador
         {
             Entrenamiento2.Add(input);
         }
+
+        /// <summary>
+        /// Añade un valor al entrenamiento
+        /// </summary>
+        /// <param name="input">Valor a agregar</param>
+        public void Add3(double input)
+        {
+            Entrenamiento3.Add(input);
+        }
+
         /// <summary>
         /// Calcula los valores del objeto
         /// </summary>
@@ -217,6 +279,12 @@ namespace Clasificador
             _std2 = MPStd(Entrenamiento2.ToArray());
             _min2 = MPMin("2");
             _max2 = MPMax("2");
+
+            _media3 = MPMedia(Entrenamiento3.ToArray());
+            _var3 = MPVar(Entrenamiento3.ToArray());
+            _std3 = MPStd(Entrenamiento3.ToArray());
+            _min3 = MPMin("3");
+            _max3 = MPMax("3");
         }
 
         /// <summary>
@@ -253,7 +321,93 @@ namespace Clasificador
             MPcnorm(x, media, desviacion, parametro);
         }
 
+        /// <summary>
+        /// Compara 2 objetos estadisticos y determina si las clases estan mezcladas
+        /// </summary>
+        /// <param name="comp"></param>
+        /// <returns>un booleano</returns>
+        public bool Empalme(Objeto comp, string parametro)
+        {
+            bool regreso = false;
+            double diferencia = 0;
 
+            switch (parametro)
+            {
+                case "1":
+                    if (_media > comp.Mean)
+                    {
+                        //Si media es mayor el otro objeto esta del lado izquierdo
+                        diferencia = _min - comp.Max;
+                        if (diferencia >= 0)
+                        {
+                            regreso = false;
+                        }
+                        else
+                        {
+                            regreso = true;
+                        }
+                    }
+                    else if (_media == comp.Mean)
+                    {
+                        regreso = true;
+                    }
+                    else
+                    {
+                        //Cuando el objeto esa del lado derecho
+                        diferencia = comp.Min - _max;
+                        if (diferencia >= 0)
+                        {
+                            regreso = false;
+                        }
+                        else
+                        {
+                            regreso = true;
+                        }
+                    }
+                    break;
+
+
+                case "2":
+                    if (_media2 > comp.Mean2)
+                    {
+                        //Si media es mayor el otro objeto esta del lado izquierdo
+                        diferencia = _min2 - comp.Max2;
+                        if (diferencia >= 0)
+                        {
+                            regreso = false;
+                        }
+                        else
+                        {
+                            regreso = true;
+                        }
+                    }
+                    else if (_media2 == comp.Mean2)
+                    {
+                        regreso = true;
+                    }
+                    else
+                    {
+                        //Cuando el objeto esa del lado derecho
+                        diferencia = comp.Min2 - _max2;
+                        if (diferencia >= 0)
+                        {
+                            regreso = false;
+                        }
+                        else
+                        {
+                            regreso = true;
+                        }
+                    }
+                    break;
+
+                default:
+                    break;
+
+            }
+
+            return regreso;
+
+        }
         #endregion
 
         #region Metodos Privados
@@ -266,6 +420,7 @@ namespace Clasificador
             Statistics a = new Statistics();
             return a.Mean(input);
         }
+
         /// <summary>
         /// Calcula la varianza
         /// </summary>
@@ -275,6 +430,7 @@ namespace Clasificador
             Statistics a = new Statistics();
             return a.Var(input);
         }
+
         /// <summary>
         /// Calcula la desviacion estandar
         /// </summary>
@@ -295,9 +451,13 @@ namespace Clasificador
             {
                 return (_media - 3 * _std);
             }
-            else
+            else if (parametro == "2")
             {
                 return (_media2 - 3 * _std);
+            }
+            else
+            {
+                return (_media3 - 3 * _std);
             }
         }
 
@@ -311,9 +471,13 @@ namespace Clasificador
             {
                 return (_media + 3 * _std);
             }
+            else if (parametro == "2")
+            {
+                return (_media2 - 3 * _std);
+            }
             else
             {
-                return (_media2 + 3 * _std);
+                return (_media3 - 3 * _std);
             }
         }
 
@@ -331,10 +495,15 @@ namespace Clasificador
                 GFunctions a = new GFunctions();
                 _x = a.linespace(inicio, fin, paso);
             }
-            else
+            else if (parametro == "2")
             {
                 GFunctions a = new GFunctions();
                 _x2 = a.linespace(inicio, fin, paso);
+            }
+            else
+            {
+                GFunctions a = new GFunctions();
+                _x3 = a.linespace(inicio, fin, paso);
             }
         }
 
@@ -352,10 +521,15 @@ namespace Clasificador
                 Statistics a = new Statistics();
                 _y = a.normpdf(x, media, desviacion);
             }
-            else
+            else if (parametro == "2")
             {
                 Statistics a = new Statistics();
                 _y2 = a.normpdf(x, media, desviacion);
+            }
+            else
+            {
+                Statistics a = new Statistics();
+                _y3 = a.normpdf(x, media, desviacion);
             }
         }
 
@@ -373,10 +547,15 @@ namespace Clasificador
                 Statistics a = new Statistics();
                 Psimple = a.Cnorm(media, desviacion, input);
             }
-            else
+            else if (parametro == "2")
             {
                 Statistics a = new Statistics();
                 Psimple2 = a.Cnorm(media, desviacion, input);
+            }
+            else
+            {
+                Statistics a = new Statistics();
+                Psimple3 = a.Cnorm(media, desviacion, input);
             }
         }
         #endregion
