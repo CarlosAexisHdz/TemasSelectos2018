@@ -12,6 +12,7 @@ namespace Clasificador
         {
             Rectangulo, Trapezio, Simpson, TrapecioCompuesto, SimpsonCompuesto, Pmedio, Extrapolacion, Gauss, Adaptativos
         }
+
         /// <summary>
         /// Regresa el valor de la integral 
         /// </summary>
@@ -63,7 +64,7 @@ namespace Clasificador
             return salida;
         }
 
-        public double[] Integral(double[] x, double[] y, MetodoIntegral metodoIntegral)
+        public double[] Integral(double[] x, double[] y)
         {
 
 
@@ -78,7 +79,7 @@ namespace Clasificador
 
             return Y;
         }
-        public double[] Integral(double paso, double[] y, MetodoIntegral metodoIntegral)
+        public double[] Integral(double paso, double[] y)
         {
 
 
